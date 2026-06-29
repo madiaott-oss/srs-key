@@ -1,35 +1,61 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><title>Générateur Clé SRS</title>
+<head><meta charset="UTF-8"><title>TVPROMEDIA GEN</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-<style>body{font-family:sans-serif;max-width:600px;margin:30px auto;padding:20px;background:#111;color:#eee}input,button{width:100%;padding:10px;margin:5px 0;font-size:16px}button{background:#2ea043;color:#fff;border:0;cursor:pointer}#result{background:#222;padding:10px;word-break:break-all;margin-top:10px}.btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}code{background:#000;padding:2px 4px}</style>
+<style>
+body{font-family:sans-serif;max-width:600px;margin:30px auto;padding:20px;background:#111;color:#eee}
+input,button{width:100%;padding:12px;margin:5px 0;font-size:16px;border-radius:8px;border:0}
+button{background:#2ea043;color:#fff;cursor:pointer;font-weight:bold}
+button.copy{background:#1f6feb} button.save{background:#a371f7}
+#result{background:#222;padding:15px;border-radius:8px;margin-top:10px}
+code{background:#000;padding:8px;display:block;margin:5px 0;word-break:break-all}
+.btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+</style>
 </head>
 <body>
-<h2>🔑 Générateur SRS BOSS</h2>
+<h2>🔑 Générateur TVPROMEDIA</h2>
 <label>IP VPS:</label><input id="ip" value="152.239.117.33">
-<label>Secret VPS:</label><input id="secret" value="MonSecretBOSS">
-<label>Nom du Stream:</label><input id="stream" value="canal">
+<label>Secret VPS:</label><input id="secret" value="tvpromedia" readonly>
+<label>Nom du Stream [sans espace]:</label><input id="stream" value="balademondetv">
 <h3>Durée:</h3>
 <div class="btns">
 <button onclick="gen(30)">1 Mois</button><button onclick="gen(60)">2 Mois</button><button onclick="gen(90)">3 Mois</button>
 <button onclick="gen(120)">4 Mois</button><button onclick="gen(150)">5 Mois</button><button onclick="gen(180)">6 Mois</button>
 <button onclick="gen(365)" style="grid-column: span 3;background:#f85149;">1 An</button>
 </div>
-<div id="result">Clique un bouton...</div>
+<div id="result"></div>
 <script>
+let rtmp_link = ''; let hls_link = ''; let nom_stream = '';
+
 function gen(jours){
-  const ip=document.getElementById('ip').value;
-  const s=document.getElementById('secret').value;
-  const stream=document.getElementById('stream').value;
+  const ip=document.getElementById('ip').value.trim();
+  const s=document.getElementById('secret').value.trim();
+  nom_stream=document.getElementById('stream').value.trim().replace(/\s+/g,'');
   const e=new Date(); e.setDate(e.getDate()+jours);
   const date=e.toISOString().slice(0,10).replace(/-/g,''); 
-  const sign=CryptoJS.MD5(stream+"?"+s+date).toString(); 
-  const rtmp = `rtmp://${ip}/live/${stream}?sign=${sign}&e=${date}`;
-  const hls = `http://${ip}:8080/live/${stream}.m3u8`;
+  const sign=CryptoJS.MD5(nom_stream+"?"+s+date).toString(); 
+  
+  rtmp_link = `rtmp://${ip}/live/${nom_stream}?sign=${sign}&e=${date}`;
+  hls_link = `http://${ip}:8080/live/${nom_stream}.m3u8`;
+  
   document.getElementById('result').innerHTML = 
-  `<b>1. Clé de flux RTMP pour vMix:</b><br><code>${rtmp}</code><br><br>
-   <b>2. Lien HLS .m3u8 pour regarder:</b><br><code>${hls}</code><br><br>
+  `<b>1. Clé RTMP vMix:</b><code id="rtmp">${rtmp_link}</code>
+   <button class="copy" onclick="copyTxt(rtmp_link)">📋 Copier RTMP</button>
+   <b>2. Lien HLS VLC:</b><code id="hls">${hls_link}</code>
+   <button class="copy" onclick="copyTxt(hls_link)">📋 Copier HLS</button>
+   <button class="save" onclick="saveTxt()">💾 Télécharger.txt</button>
    <i>Expire le: ${e.toLocaleDateString('fr-FR')}</i>`;
+}
+
+function copyTxt(txt){ navigator.clipboard.writeText(txt); alert('Copié!'); }
+
+function saveTxt(){
+  const content = `TVPROMEDIA - ${nom_stream}\n\nRTMP vMix:\n${rtmp_link}\n\nHLS VLC:\n${hls_link}`;
+  const blob = new Blob([content], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nom_stream + '.txt'; // Ex: balademondetv.txt
+  a.click();
 }
 </script>
 </body>
