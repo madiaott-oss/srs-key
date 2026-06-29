@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Générateur Clé SRS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<style>body{font-family:sans-serif;max-width:500px;margin:50px auto;padding:20px;background:#111;color:#eee}input,button{width:100%;padding:10px;margin:5px 0;font-size:16px}button{background:#2ea043;color:#fff;border:0;cursor:pointer}#result{background:#222;padding:10px;word-break:break-all}</style>
+</head>
+<body>
+<h2>🔑 Générateur SRS BOSS</h2>
+<label>Secret VPS:</label><input id="secret" value="MonSecretBOSS">
+<label>Nom du Stream:</label><input id="stream" value="canal">
+<button onclick="gen(60)">Clé 2 Mois</button>
+<button onclick="gen(365)">Clé 1 An</button>
+<h3>Résultat pour vMix:</h3><div id="result">Clique un bouton...</div>
+<script>
+function gen(jours){
+  const s=document.getElementById('secret').value;
+  const stream=document.getElementById('stream').value;
+  const e=new Date(); e.setDate(e.getDate()+jours);
+  const date=e.toISOString().slice(0,10).replace(/-/g,''); 
+  const sign=CryptoJS.MD5(stream+"?"+s+date).toString(); 
+  document.getElementById('result').innerHTML = 
+  `<b>Clé de flux:</b> ${stream}?sign=${sign}&e=${date}<br><i>Expire le: ${e.toLocaleDateString('fr-FR')}</i>`;
+}
+</script>
+</body>
+</html>
