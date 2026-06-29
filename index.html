@@ -2,32 +2,34 @@
 <html lang="fr">
 <head><meta charset="UTF-8"><title>Générateur Clé SRS</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-<style>body{font-family:sans-serif;max-width:500px;margin:50px auto;padding:20px;background:#111;color:#eee}input,button{width:100%;padding:10px;margin:5px 0;font-size:16px}button{background:#2ea043;color:#fff;border:0;cursor:pointer}#result{background:#222;padding:10px;word-break:break-all}.btns{display:grid;grid-template-columns:1fr 1fr;gap:5px}</style>
+<style>body{font-family:sans-serif;max-width:600px;margin:30px auto;padding:20px;background:#111;color:#eee}input,button{width:100%;padding:10px;margin:5px 0;font-size:16px}button{background:#2ea043;color:#fff;border:0;cursor:pointer}#result{background:#222;padding:10px;word-break:break-all;margin-top:10px}.btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}code{background:#000;padding:2px 4px}</style>
 </head>
 <body>
 <h2>🔑 Générateur SRS BOSS</h2>
+<label>IP VPS:</label><input id="ip" value="152.239.117.33">
 <label>Secret VPS:</label><input id="secret" value="MonSecretBOSS">
 <label>Nom du Stream:</label><input id="stream" value="canal">
 <h3>Durée:</h3>
 <div class="btns">
-<button onclick="gen(30)">1 Mois</button>
-<button onclick="gen(60)">2 Mois</button>
-<button onclick="gen(90)">3 Mois</button>
-<button onclick="gen(120)">4 Mois</button>
-<button onclick="gen(150)">5 Mois</button>
-<button onclick="gen(180)">6 Mois</button>
-<button onclick="gen(365)" style="grid-column: span 2;background:#f85149;">1 An</button>
+<button onclick="gen(30)">1 Mois</button><button onclick="gen(60)">2 Mois</button><button onclick="gen(90)">3 Mois</button>
+<button onclick="gen(120)">4 Mois</button><button onclick="gen(150)">5 Mois</button><button onclick="gen(180)">6 Mois</button>
+<button onclick="gen(365)" style="grid-column: span 3;background:#f85149;">1 An</button>
 </div>
-<h3>Résultat pour vMix:</h3><div id="result">Clique un bouton...</div>
+<div id="result">Clique un bouton...</div>
 <script>
 function gen(jours){
+  const ip=document.getElementById('ip').value;
   const s=document.getElementById('secret').value;
   const stream=document.getElementById('stream').value;
   const e=new Date(); e.setDate(e.getDate()+jours);
   const date=e.toISOString().slice(0,10).replace(/-/g,''); 
   const sign=CryptoJS.MD5(stream+"?"+s+date).toString(); 
+  const rtmp = `rtmp://${ip}/live/${stream}?sign=${sign}&e=${date}`;
+  const hls = `http://${ip}:8080/live/${stream}.m3u8`;
   document.getElementById('result').innerHTML = 
-  `<b>Clé de flux:</b> ${stream}?sign=${sign}&e=${date}<br><i>Expire le: ${e.toLocaleDateString('fr-FR')}</i>`;
+  `<b>1. Clé de flux RTMP pour vMix:</b><br><code>${rtmp}</code><br><br>
+   <b>2. Lien HLS .m3u8 pour regarder:</b><br><code>${hls}</code><br><br>
+   <i>Expire le: ${e.toLocaleDateString('fr-FR')}</i>`;
 }
 </script>
 </body>
